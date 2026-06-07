@@ -1,43 +1,57 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
-import { useRouter } from 'next/navigation'
-import { courses } from '@/lib/courses'
+import { useRouter, useParams } from 'next/navigation'
+import { courses, sharedSubjects, radiologyShared, assessmentThresholds } from '@/lib/courses'
 
-export default function DashboardPage() {
+export default function CourseDashboard() {
   const [user, setUser] = useState<any>(null)
+  const [progress, setProgress] = useState<Record<string, number>>({})
   const router = useRouter()
+  const params = useParams()
+  const courseId = params.course as string
+  const course = courses[courseId]
   const supabase = createClient()
 
   useEffect(() => {
-    const getUser = async () => {
+    const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) router.push('/login')
-      else setUser(user)
+      if (!user) { router.push('/login'); return }
+      setUser(user)
+      if (typeof window !== 'undefined') {
+        const saved = localStorage.getItem('progress_' + courseId)
+        if (saved) setProgress(JSON.parse(saved))
+      }
     }
-    getUser()
-  }, [])
+    init()
+  }, [courseId])
 
-  if (!user) return <div className="min-h-screen flex items-center justify-center">Carregando...</div>
+  if (!course) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>Curso não encontrado</div>
+  if (!user) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>Carregando...</div>
+
+  const allSubjects = [
+    ...sharedSubjects,
+    ...(courseId === 'radiologia' ? radiologyShared : []),
+    ...course.specific,
+  ]
+
+  const totalProgress = Math.round(
+    allSubjects.reduce((acc, s) => acc + (progress[s.id] || 0), 0) / allSubjects.length
+  )
+
+  const getAssessmentDone = (sid: string, t: number) => {
+    if (typeof window === 'undefined') return false
+    return !!localStorage.getItem('assessment_done_' + courseId + '_' + sid + '_' + t)
+  }
+
+  const pendingAssessments = allSubjects.filter(s => {
+    const p = progress[s.id] || 0
+    return assessmentThresholds.some(t => p >= t && !getAssessmentDone(s.id, t))
+  })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
-        <h1 className="text-2xl font-bold text-center text-indigo-700 mb-2">🎓 AcademicAI</h1>
-        <p className="text-center text-gray-500 mb-8">Qual é o seu curso?</p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {Object.entries(courses).map(([id, course]) => (
-            <button
-              key={id}
-              onClick={() => router.push(`/dashboard/${id}`)}
-              className="flex flex-col items-center gap-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded-xl p-6 transition hover:scale-105">
-              <span className="text-4xl">{course.icon}</span>
-              <span className="text-sm font-medium text-indigo-700 text-center">{course.name}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div style={{display:'flex',minHeight:'100vh',background:'#f9fafb'}}>
+      <aside style={{width:'220px',background:'white',borderRight:'1px solid #f3f4f6',padding:'1rem',position:'fixed',height:'100%',overflowY:'auto'}}>
+        <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'1.5rem'}}>
+          <span style={{fontSize:'1.5rem'}}>{course.icon}</span>
+          <spa
