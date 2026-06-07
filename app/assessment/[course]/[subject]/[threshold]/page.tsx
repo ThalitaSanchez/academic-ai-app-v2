@@ -1,5 +1,4 @@
 'use client'
-
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { courses, sharedSubjects, radiologyShared } from '@/lib/courses'
@@ -21,9 +20,7 @@ export default function AssessmentPage() {
   const allSubjects = [...sharedSubjects, ...(courseId === 'radiologia' ? radiologyShared : []), ...(course?.specific || [])]
   const subject = allSubjects.find(s => s.id === subjectId)
 
-  useEffect(() => {
-    generateQuestions()
-  }, [])
+  useEffect(() => { generateQuestions() }, [])
 
   const generateQuestions = async () => {
     setLoading(true)
@@ -35,9 +32,7 @@ export default function AssessmentPage() {
       })
       const data = await res.json()
       setQuestions(data.questions)
-    } catch {
-      setQuestions([])
-    }
+    } catch { setQuestions([]) }
     setLoading(false)
   }
 
@@ -53,33 +48,31 @@ export default function AssessmentPage() {
       setScore(data.score)
       setFeedback(data.feedback)
       setSubmitted(true)
-      localStorage.setItem(`assessment_done_${courseId}_${subjectId}_${threshold}`, 'true')
-    } catch {
-      setFeedback('Erro ao corrigir. Tente novamente.')
-    }
+      localStorage.setItem('assessment_done_' + courseId + '_' + subjectId + '_' + threshold, 'true')
+    } catch { setFeedback('Erro ao corrigir. Tente novamente.') }
     setLoading(false)
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <p className="text-4xl mb-4">🤖</p>
-        <p className="text-gray-500">Gerando sua avaliação...</p>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#f9fafb'}}>
+      <div style={{textAlign:'center'}}>
+        <p style={{fontSize:'2.5rem',marginBottom:'1rem'}}>🤖</p>
+        <p style={{color:'#6b7280'}}>Gerando sua avaliação...</p>
       </div>
     </div>
   )
 
   if (submitted) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center">
-        <p className="text-5xl mb-4">{score >= 7 ? '🎉' : '📚'}</p>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Nota: {score}/10</h2>
-        <p className="text-gray-500 mb-6">{score >= 7 ? 'Parabéns! Você foi muito bem!' : 'Continue estudando, você vai melhorar!'}</p>
-        <div className="bg-gray-50 rounded-xl p-4 text-left text-sm text-gray-600 mb-6 leading-relaxed">
+    <div style={{minHeight:'100vh',background:'#f9fafb',display:'flex',alignItems:'center',justifyContent:'center',padding:'1rem'}}>
+      <div style={{background:'white',borderRadius:'1rem',padding:'2rem',maxWidth:'32rem',width:'100%',textAlign:'center',boxShadow:'0 4px 24px rgba(0,0,0,0.08)'}}>
+        <p style={{fontSize:'3rem',marginBottom:'1rem'}}>{score >= 7 ? '🎉' : '📚'}</p>
+        <h2 style={{fontSize:'1.5rem',fontWeight:'700',color:'#1f2937',marginBottom:'0.5rem'}}>Nota: {score}/10</h2>
+        <p style={{color:'#6b7280',marginBottom:'1.5rem'}}>{score >= 7 ? 'Parabéns! Você foi muito bem!' : 'Continue estudando, você vai melhorar!'}</p>
+        <div style={{background:'#f9fafb',borderRadius:'0.75rem',padding:'1rem',textAlign:'left',fontSize:'0.875rem',color:'#4b5563',marginBottom:'1.5rem',lineHeight:'1.6'}}>
           {feedback}
         </div>
-        <button onClick={() => router.push(`/dashboard/${courseId}`)}
-          className="w-full bg-indigo-600 text-white rounded-xl py-3 font-semibold hover:bg-indigo-700 transition">
+        <button onClick={() => router.push('/dashboard/' + courseId)}
+          style={{width:'100%',background:'#4f46e5',color:'white',borderRadius:'0.75rem',padding:'0.75rem',fontWeight:'600',border:'none',cursor:'pointer'}}>
           Voltar ao dashboard
         </button>
       </div>
@@ -89,48 +82,38 @@ export default function AssessmentPage() {
   const allAnswered = Object.keys(answers).length >= questions.length && openAnswer.trim().length > 0
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-4">
-        <button onClick={() => router.back()} className="text-gray-400 hover:text-gray-600">← Voltar</button>
-        <h1 className="font-semibold text-indigo-700">📝 Avaliação {threshold}% — {subject?.name}</h1>
+    <div style={{minHeight:'100vh',background:'#f9fafb'}}>
+      <nav style={{background:'white',borderBottom:'1px solid #f3f4f6',padding:'1rem 1.5rem',display:'flex',alignItems:'center',gap:'1rem'}}>
+        <button onClick={() => router.back()} style={{color:'#9ca3af',background:'none',border:'none',cursor:'pointer'}}>← Voltar</button>
+        <h1 style={{fontWeight:'600',color:'#4f46e5'}}>📝 Avaliação {threshold}% — {subject?.name}</h1>
       </nav>
-
-      <main className="max-w-2xl mx-auto p-6">
-        <p className="text-sm text-gray-400 mb-6">Responda todas as questões e clique em enviar.</p>
-
+      <main style={{maxWidth:'42rem',margin:'0 auto',padding:'1.5rem'}}>
+        <p style={{fontSize:'0.875rem',color:'#9ca3af',marginBottom:'1.5rem'}}>Responda todas as questões e clique em enviar.</p>
         {questions.map((q, i) => (
-          <div key={i} className="bg-white border border-gray-100 rounded-2xl p-6 mb-4">
-            <p className="font-medium text-gray-800 mb-4">{i + 1}. {q.question}</p>
-            <div className="space-y-2">
+          <div key={i} style={{background:'white',border:'1px solid #f3f4f6',borderRadius:'1rem',padding:'1.5rem',marginBottom:'1rem'}}>
+            <p style={{fontWeight:'500',color:'#1f2937',marginBottom:'1rem'}}>{i + 1}. {q.question}</p>
+            <div style={{display:'flex',flexDirection:'column',gap:'0.5rem'}}>
               {q.options.map((opt: string, j: number) => (
-                <button key={j}
-                  onClick={() => setAnswers(prev => ({ ...prev, [i]: opt }))}
-                  className={`w-full text-left px-4 py-3 rounded-xl text-sm border transition ${
-                    answers[i] === opt
-                      ? 'bg-indigo-50 border-indigo-400 text-indigo-700 font-medium'
-                      : 'border-gray-100 hover:bg-gray-50 text-gray-600'
-                  }`}>
+                <button key={j} onClick={() => setAnswers(prev => ({ ...prev, [i]: opt }))}
+                  style={{textAlign:'left',padding:'0.75rem 1rem',borderRadius:'0.75rem',fontSize:'0.875rem',border: answers[i] === opt ? '2px solid #6366f1' : '1px solid #f3f4f6',background: answers[i] === opt ? '#eef2ff' : 'white',color: answers[i] === opt ? '#4f46e5' : '#4b5563',cursor:'pointer',fontWeight: answers[i] === opt ? '500' : '400'}}>
                   {opt}
                 </button>
               ))}
             </div>
           </div>
         ))}
-
-        <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
-          <p className="font-medium text-gray-800 mb-3">Questão dissertativa</p>
-          <p className="text-sm text-gray-500 mb-3">Explique com suas palavras um conceito importante de {subject?.name}.</p>
-          <textarea
-            value={openAnswer}
-            onChange={e => setOpenAnswer(e.target.value)}
-            rows={5}
+        <div style={{background:'white',border:'1px solid #f3f4f6',borderRadius:'1rem',padding:'1.5rem',marginBottom:'1.5rem'}}>
+          <p style={{fontWeight:'500',color:'#1f2937',marginBottom:'0.75rem'}}>Questão dissertativa</p>
+          <p style={{fontSize:'0.875rem',color:'#6b7280',marginBottom:'0.75rem'}}>Explique com suas palavras um conceito importante de {subject?.name}.</p>
+          <textarea value={openAnswer} onChange={e => setOpenAnswer(e.target.value)} rows={5}
             placeholder="Digite sua resposta aqui..."
-            className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-          />
+            style={{width:'100%',border:'1px solid #e5e7eb',borderRadius:'0.75rem',padding:'0.75rem 1rem',fontSize:'0.875rem',resize:'none',outline:'none',boxSizing:'border-box'}} />
         </div>
-
-        <button
-          onClick={handleSubmit}
-          disabled={!allAnswered}
-          style={{ opacity: allAnswered ? 1 : 0.5 }}
-          className="w-full bg-indigo-600 text-white
+        <button onClick={handleSubmit} disabled={!allAnswered}
+          style={{width:'100%',background:'#4f46e5',color:'white',borderRadius:'0.75rem',padding:'1rem',fontWeight:'600',border:'none',cursor: allAnswered ? 'pointer' : 'not-allowed',opacity: allAnswered ? 1 : 0.5}}>
+          Enviar avaliação
+        </button>
+      </main>
+    </div>
+  )
+}
