@@ -130,6 +130,9 @@ export default function AssessmentPage() {
         </div>
 
         <button
-          onClick={handleSubmit}
-          disabled={Object.keys(answers).length < questions.length || !openAnswer.trim()}
-          className="w-full bg-indigo-600 text-white rounded-xl py-4 font-semibold hover:bg-indigo-700 transition disabled:opacity-50"
+  onClick={handleSubmit}
+  disabled={Object.keys(answers).length < questions.length || !openAnswer.trim()}
+  style={{opacity: Object.keys(answers).length < questions.length || !openAnswer.trim() ? 0.5 : 1}}
+  className="w-full bg-indigo-600 text-white rounded-xl py-4 font-semibold hover:bg-indigo-700 transition">
+  Enviar avaliação
+</button>
