@@ -1,23 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const { messages, course } = await req.json()
+  const body = await req.json()
+  const { messages, course } = body
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+      'Authorization': 'Bearer ' + process.env.OPENAI_API_KEY,
     },
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: `Você é uma tutora acadêmica especialista em ${course}. 
-Responda sempre em português brasileiro de forma clara, didática e encorajadora.
-Use exemplos práticos quando possível.
-Se a pergunta não for relacionada ao curso, redirecione gentilmente para o tema acadêmico.`,
+          content: 'Voce e uma tutora academica especialista em ' + course + '. Responda sempre em portugues brasileiro de forma clara e didatica. Use exemplos praticos quando possivel.',
         },
         ...messages,
       ],
@@ -25,8 +23,7 @@ Se a pergunta não for relacionada ao curso, redirecione gentilmente para o tema
     }),
   })
 
-  const data = await response.json()
-  const reply = data.choices?.[0]?.message?.content || 'Não consegui gerar uma resposta.'
-
+  const data = await res.json()
+  const reply = data.choices?.[0]?.message?.content || 'Nao consegui gerar uma resposta.'
   return NextResponse.json({ reply })
 }
