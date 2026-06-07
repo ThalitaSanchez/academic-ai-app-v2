@@ -73,9 +73,7 @@ export default function AssessmentPage() {
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 max-w-lg w-full text-center">
         <p className="text-5xl mb-4">{score >= 7 ? '🎉' : '📚'}</p>
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
-          Nota: {score}/10
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Nota: {score}/10</h2>
         <p className="text-gray-500 mb-6">{score >= 7 ? 'Parabéns! Você foi muito bem!' : 'Continue estudando, você vai melhorar!'}</p>
         <div className="bg-gray-50 rounded-xl p-4 text-left text-sm text-gray-600 mb-6 leading-relaxed">
           {feedback}
@@ -87,6 +85,8 @@ export default function AssessmentPage() {
       </div>
     </div>
   )
+
+  const allAnswered = Object.keys(answers).length >= questions.length && openAnswer.trim().length > 0
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -119,7 +119,7 @@ export default function AssessmentPage() {
 
         <div className="bg-white border border-gray-100 rounded-2xl p-6 mb-6">
           <p className="font-medium text-gray-800 mb-3">Questão dissertativa</p>
-          <p className="text-sm text-gray-500 mb-3">Explique com suas próprias palavras um conceito importante de {subject?.name}.</p>
+          <p className="text-sm text-gray-500 mb-3">Explique com suas palavras um conceito importante de {subject?.name}.</p>
           <textarea
             value={openAnswer}
             onChange={e => setOpenAnswer(e.target.value)}
@@ -130,9 +130,7 @@ export default function AssessmentPage() {
         </div>
 
         <button
-  onClick={handleSubmit}
-  disabled={Object.keys(answers).length < questions.length || !openAnswer.trim()}
-  style={{opacity: Object.keys(answers).length < questions.length || !openAnswer.trim() ? 0.5 : 1}}
-  className="w-full bg-indigo-600 text-white rounded-xl py-4 font-semibold hover:bg-indigo-700 transition">
-  Enviar avaliação
-</button>
+          onClick={handleSubmit}
+          disabled={!allAnswered}
+          style={{ opacity: allAnswered ? 1 : 0.5 }}
+          className="w-full bg-indigo-600 text-white
